@@ -9,7 +9,7 @@ from shapely.geometry import Point, LineString, MultiLineString, Polygon
 from shapely.ops import unary_union, linemerge
 from dropbox_fema import get_fema_zip
 
-# Ignore Shapely geometry cleanup warnings
+# Ignore geometry warnings from Shapely
 warnings.filterwarnings("ignore", message=".*Shell empty after removing invalid points.*")
 
 def generate_dxf(
@@ -110,14 +110,19 @@ def generate_dxf(
         nad_suffix = "N83G"
 
     # --- Add text annotation ---
-    msp.add_text(
+    text = msp.add_text(
         f"{project_name}\n{county_name} County\nScale 1\"={drawing_scale} ft",
         dxfattribs={
             "height": text_plot_height,
             "layer": "TEXT",
             "style": "YPA_FONT"
         }
-    ).set_pos((easting, northing + (BUFFER_FEET / 2)))
+    )
+    # Fix: set text insertion manually
+    try:
+        text.set_pos((easting, northing + (BUFFER_FEET / 2)))
+    except AttributeError:
+        text.dxf.insert = (easting, northing + (BUFFER_FEET / 2))
 
     print("📝 Added text annotation")
 
