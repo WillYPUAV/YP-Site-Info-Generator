@@ -9,7 +9,7 @@ st.title("📍 YPA Vicinity Map Generator")
 
 with st.form("inputs"):
     project_name = st.text_input("Project Name")
-    county_name = st.text_input("County Name (for label or FEMA reference)")
+    county_name = st.text_input("County Name")
 
     northing = st.number_input("Grid Northing (ft)", value=6963281.3, format="%.3f")
     easting = st.number_input("Grid Easting (ft)", value=2466606.4, format="%.3f")
