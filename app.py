@@ -5,9 +5,9 @@ st.set_page_config(page_title="YPA Site Info Generator", layout="centered")
 
 st.title("📍 YPA Site Info Generator")
 
-project_name = st.text_input("Project Name", "2025-214-003")
-northing = st.number_input("Grid Northing (ft)", value=6963281.3)
-easting = st.number_input("Grid Easting (ft)", value=2466606.4)
+project_name = st.text_input("Project Name", "")
+northing = st.number_input("Grid Northing (ft)", value=0)
+easting = st.number_input("Grid Easting (ft)", value=0)
 buffer_miles = st.number_input("Buffer Distance (miles)", value=3.0)
 
 county = st.selectbox("Select County", [
