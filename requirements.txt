@@ -1,8 +1,8 @@
 streamlit
 geopandas
 osmnx
-ezdxf
 shapely
-fiona
-rtree
+ezdxf
+requests
 pyproj
+pandas
