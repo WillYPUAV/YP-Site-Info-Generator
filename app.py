@@ -59,6 +59,13 @@ if st.button("Generate DXF File", key="generate_dxf_button"):
                 nad_suffix=nad_suffix
             )
 
-            with open(dxf_file_
-
-
+            with open(dxf_file, "rb") as f:
+                st.download_button(
+                    "⬇️ Download DXF File",
+                    f,
+                    file_name=os.path.basename(dxf_file),
+                    mime="application/dxf",
+                    key="download_dxf"
+                )
+        except Exception as e:
+            st.error(f"⚠️ Error: {e}")
