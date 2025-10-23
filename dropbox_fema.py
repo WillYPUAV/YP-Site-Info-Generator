@@ -1,38 +1,45 @@
 import geopandas as gpd
-import requests, tempfile, zipfile, io, os
-from county_flood_links import county_flood_links
+import os
 
-def load_fema_layer(county):
-    if county not in county_flood_links:
-        print(f"⚠️ No FEMA shapefile found for {county}")
-        return None
-
-    url = county_flood_links[county]
-    print(f"⬇️ Downloading FEMA shapefile for {county}...")
+def load_fema_layer(county_name, buffer_geom=None, crs="EPSG:6584"):
+    """
+    Loads FEMA floodline shapefile for a given county and clips it to the AOI buffer.
+    Expects shapefiles in /content/fema_data/ named like 'Collin_FEMA_FloodLines.shp'
+    """
 
     try:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            r = requests.get(url, timeout=60)
-            r.raise_for_status()
+        # Path to your FEMA shapefile directory
+        base_dir = "/content/fema_data"
+        fema_file = os.path.join(base_dir, f"{county_name}_FEMA_FloodLines.shp")
 
-            # Handle ZIP or single file
-            if url.endswith(".zip?dl=1"):
-                with zipfile.ZipFile(io.BytesIO(r.content)) as zf:
-                    zf.extractall(tmpdir)
-                    shp_files = [os.path.join(tmpdir, f) for f in zf.namelist() if f.endswith(".shp")]
-                    if shp_files:
-                        gdf = gpd.read_file(shp_files[0])
-                    else:
-                        raise ValueError("No .shp file found in zip")
-            else:
-                shp_path = os.path.join(tmpdir, f"{county}.shp")
-                with open(shp_path, "wb") as f:
-                    f.write(r.content)
-                gdf = gpd.read_file(shp_path)
+        if not os.path.exists(fema_file):
+            print(f"⚠️ FEMA shapefile not found for {county_name}: {fema_file}")
+            return None
 
-            print(f"✅ Loaded FEMA flood data for {county} ({len(gdf)} features)")
-            return gdf
+        print(f"📁 Loading FEMA flood data for {county_name}...")
+        fema = gpd.read_file(fema_file)
+
+        # Reproject to match NAD83 (2011) Zone 4202 ftUS
+        fema = fema.to_crs(crs)
+
+        # Convert polygons to boundary lines if needed
+        if fema.geom_type.isin(["Polygon", "MultiPolygon"]).any():
+            print("🔄 Converting FEMA polygons to boundary lines...")
+            fema["geometry"] = fema.boundary
+
+        # Clip to the AOI buffer if provided
+        if buffer_geom is not None:
+            try:
+                fema = gpd.clip(fema, buffer_geom)
+            except Exception as e:
+                print(f"⚠️ FEMA clip failed: {e}")
+
+        # Drop empty geometries
+        fema = fema[~fema.is_empty & fema.is_valid]
+
+        print(f"✅ Loaded {len(fema)} FEMA flood features for {county_name}")
+        return fema
 
     except Exception as e:
-        print(f"⚠️ Failed to load FEMA data: {e}")
+        print(f"⚠️ Error loading FEMA data for {county_name}: {e}")
         return None
