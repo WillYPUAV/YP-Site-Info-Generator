@@ -1,8 +1,28 @@
-streamlit
-geopandas
-osmnx
-shapely
-ezdxf
-requests
-pyproj
-pandas
+# --- Core environment ---
+streamlit==1.38.0
+numpy>=1.26
+pandas>=2.2
+matplotlib>=3.9
+
+# --- GIS / Geospatial stack ---
+geopandas==0.14.3
+shapely==2.0.4
+pyproj==3.6.1
+fiona==1.9.6
+gdal==3.9.2
+
+# --- OpenStreetMap + road data ---
+osmnx==1.9.3
+
+# --- DXF creation ---
+ezdxf==1.3.4
+
+# --- Web requests and file I/O ---
+requests>=2.31
+zipfile36>=0.1.3
+
+# --- Optional performance helpers ---
+rtree>=1.2.0
+
+# --- To fix potential warnings ---
+pyogrio>=0.9.0
