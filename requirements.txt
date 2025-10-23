@@ -1,22 +1,12 @@
-streamlit
+streamlit==1.50.0
 numpy
 pandas
 matplotlib
-
-# Geospatial stack (no GDAL compile needed)
 geopandas
 shapely
 pyproj
 fiona
-pyogrio
-rtree
-
-# OpenStreetMap + network data
 osmnx
-
-# DXF generation
 ezdxf
-
-# Web + file handling
 requests
-zipfile36
+rtree
