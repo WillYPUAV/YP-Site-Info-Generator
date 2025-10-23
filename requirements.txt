@@ -1,0 +1,8 @@
+streamlit
+geopandas
+osmnx
+ezdxf
+shapely
+fiona
+rtree
+pyproj
