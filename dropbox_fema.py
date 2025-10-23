@@ -1,6 +1,8 @@
+import os
 import requests
 import tempfile
-import os
+import zipfile
+
 
 # ======================================================
 # FEMA Dropbox links (replace with your own)
@@ -19,19 +21,43 @@ county_flood_links = {
 }
 
 def get_fema_zip(county_name):
-    """Downloads FEMA shapefile ZIP for a given county."""
+    """
+    Downloads and extracts FEMA shapefile for a given county.
+    Returns path to the extracted .shp file.
+    """
     url = county_flood_links.get(county_name)
     if not url:
+        print(f"⚠️ No Dropbox FEMA data link found for {county_name}")
         return None
 
     try:
-        tmp_zip = os.path.join(tempfile.gettempdir(), f"{county_name}.zip")
+        print(f"⬇️ Downloading FEMA shapefile ZIP for {county_name}...")
         r = requests.get(url, stream=True)
-        r.raise_for_status()
-        with open(tmp_zip, "wb") as f:
-            for chunk in r.iter_content(8192):
-                f.write(chunk)
-        return tmp_zip
+        if r.status_code != 200:
+            print(f"⚠️ Download failed: {r.status_code}")
+            return None
+
+        # Save ZIP temporarily
+        tmp_zip = tempfile.NamedTemporaryFile(delete=False, suffix=".zip")
+        for chunk in r.iter_content(1024):
+            tmp_zip.write(chunk)
+        tmp_zip.close()
+
+        # Extract contents
+        tmpdir = tempfile.mkdtemp()
+        with zipfile.ZipFile(tmp_zip.name, "r") as z:
+            z.extractall(tmpdir)
+
+        # Auto-detect any .shp file inside the ZIP
+        shp_files = [os.path.join(tmpdir, f) for f in os.listdir(tmpdir) if f.lower().endswith(".shp")]
+        if not shp_files:
+            print(f"⚠️ No .shp file found inside FEMA ZIP for {county_name}")
+            return None
+
+        shp_path = shp_files[0]
+        print(f"📂 Found shapefile: {os.path.basename(shp_path)}")
+        return shp_path
+
     except Exception as e:
-        print(f"⚠️ Failed to download FEMA data: {e}")
+        print(f"⚠️ Dropbox download error: {e}")
         return None
