@@ -1,3 +1,4 @@
+import os
 import geopandas as gpd
 import osmnx as ox
 from shapely.geometry import Point, LineString, MultiLineString
@@ -7,6 +8,7 @@ import math
 import zipfile
 import tempfile
 from dropbox_fema import get_fema_zip
+
 
 def generate_dxf(output_path, project_name, northing, easting, drawing_scale,
                  text_plot_height, font_choice, buffer_miles, scale_factor,
