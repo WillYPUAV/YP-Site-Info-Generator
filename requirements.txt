@@ -1,12 +1,8 @@
-streamlit==1.50.0
-numpy
-pandas
-matplotlib
+streamlit
 geopandas
-shapely
-pyproj
-fiona
 osmnx
 ezdxf
-requests
+shapely
+fiona
 rtree
+pyproj
